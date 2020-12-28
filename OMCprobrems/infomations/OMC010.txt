@@ -1,0 +1,1 @@
+[{"rated": 1, "diff": -603.28, "disc": 0.00349794}, {"rated": 1, "diff": -97.86, "disc": 0.00599866}, {"rated": 1, "diff": 802.65, "disc": 0.00337132}, {"rated": 1, "diff": 709.07, "disc": 0.00360693}, {"rated": 0, "diff": null, "disc": null}, {"rated": 1, "diff": 1776.73, "disc": 0.00423618}]
