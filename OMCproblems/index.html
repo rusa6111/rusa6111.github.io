@@ -38,6 +38,7 @@
       text-decoration: none;
     }
     .head-link a:hover{
+      transition: all 0.3s ease 0s;
       color: black;
     }
     .now-page a{
@@ -46,11 +47,36 @@
     }
 
     .main_body{
+      width: 90%;
+      margin: 0 auto;
       padding-top: 100px;
     }
 
+    #userid{
+      border-radius: 10px;
+      border: solid 1px lightgray;
+      height: 40px;
+      width: 220px;
+      padding: 0px 12px;
+      font-size: 18px;
+    }
+    #userid_ok{
+      border-radius: 10px;
+      height: 40px;
+      width: auto;
+      padding: 0px 12px;
+      font-size: 18px;
+      color: white;
+      background-color: #25D;
+      border: solid 1px blue;
+    }
+    #userid_ok:active{
+      color: #DDD;
+      background-color: #14A;
+    }
+
     .problems{
-      width: 90%;
+      width: 100%;
       margin: 10px auto;
       border-collapse: collapse;
       border-top-left-radius: 10px;
@@ -214,6 +240,8 @@
     </ul>
   </header>
   <div class="main_body">
+    <input type="text" id="userid" placeholder="User ID"/>
+    <input type="button" id="userid_ok" value="OK"/>
     <table class="problems">
       <thead>
         <tr>
