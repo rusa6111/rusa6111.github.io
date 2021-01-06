@@ -44,6 +44,8 @@ $(function(){
       var r = "";
       var c_name =  contests[ci+1];
       problemsHTML[c_name] = [];
+      console.log(ci);
+      console.log(c_list[ci])
       var c_dat = JSON.parse(c_list[ci]);
       for(var i=0; i<7; i++){
         if(i == 0){
