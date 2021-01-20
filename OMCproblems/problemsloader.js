@@ -21,7 +21,7 @@ $(function(){
     }else{
       p_color = ["#888", "#840", "#080", "#0CC", "#00F", "#CC0", "#F80"][Math.max(0, Math.floor(d / 400))];
     }
-    var diff_fill = d >= 2800 ? 100 : (d < 0 ? 0 :(d - Math.floor(d/400)*400) / 4);
+    var diff_fill = d >= 3200 ? 100 : (d < 0 ? 0 :(d - Math.floor(d/400)*400) / 4);
     var style = ""
     style += "border:solid 1px " + p_color + ";";
     style += "height: " + r + ";width: " + r + ";";
