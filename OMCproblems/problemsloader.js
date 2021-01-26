@@ -1,4 +1,18 @@
 $(function(){
+  var localStorage;
+  if("localStorage" in window){
+    if(!window.localStorage.OMCproblems){
+      localStorage = {};
+    } else {
+      localStorage = JSON.parse(window.localStorage.OMCproblems);
+    }
+    if(!("userid" in localStorage)) localStorage.userid = "";
+    if(!("CAstatus" in localStorage)) localStorage.CAstatus = {};
+    var saveStorage = function(d){
+      window.localStorage.OMCproblems = JSON.stringify(d);
+    }
+    saveStorage(localStorage);
+  }
   var contestGroup = "OMC";
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET", "contests/" + contestGroup + ".txt", false);
@@ -14,9 +28,24 @@ $(function(){
     return 1/(1 + Math.exp(-a * (r - d)));
   }
 
+  var CAstatusNormalize = function(){ // if there if problem which has not been appended to localStorage, append it.
+    for(var i=0; i<Number(contests[0]); i++){
+      if(localStorage && !(contests[i+1] in localStorage.CAstatus)){
+        localStorage.CAstatus[contests[i+1]] = [];
+        console.log(JSON.parse(c_list[i]).length);
+        for(var j=0; j<Number(JSON.parse(c_list[i]).length); j++){
+          localStorage.CAstatus[contests[i+1]][j] = false;
+        }
+      }
+    }
+    saveStorage(localStorage);
+  }
 
-  var makeDiffCircleHP = function(d, r){
-    if(d > 2800){
+  var makeDiffCircleHP = function(d, r, cont, quest){ // make HTML of difficulty circle
+    if(d == null){
+      p_color = "#147";
+      d = 0;
+    }else if(d > 2800){
       p_color = "#F00";
     }else{
       p_color = ["#888", "#840", "#080", "#0CC", "#00F", "#CC0", "#F80"][Math.max(0, Math.floor(d / 400))];
@@ -26,7 +55,7 @@ $(function(){
     style += "border:solid 1px " + p_color + ";";
     style += "height: " + r + ";width: " + r + ";";
     style += "background: linear-gradient(to top," + p_color + " 0%, " + p_color + " " + diff_fill + "%, #0000 " + diff_fill + "%, #0000 100%);";
-    return "<div class='diff-circle' style='" + style + "'></div>";
+    return "<div class='diff-circle' style='" + style + "'" + (cont ? (" onclick='updateCAstatus(\"" + cont + "\", \"" + quest + "\")'") : "") + "></div>";
   }
 
   var diffColor = function(d){
@@ -38,7 +67,7 @@ $(function(){
     return r
   }
 
-  var makePH = function(){
+  var makePH = function(){ // make problems HTML
     problemsHTML = {}
     for(var ci=0; ci<Number(contests[0]); ci++){
       var r = "";
@@ -48,7 +77,7 @@ $(function(){
       for(var i=0; i<7; i++){
         if(i == 0){
           r = "<a target='_blank' class='" + contestGroup + "-contest' href='https://onlinemathcontest.com/contests/" + c_name + "/'>" + c_name + "</a>";
-        }else{
+        }else if(i <= c_dat.length){
           var alpha = "ABCDEF"[i-1];
           var p_dat = c_dat[i-1];
           var diff = p_dat["diff"];
@@ -64,9 +93,11 @@ $(function(){
             p_class = diffColor(diff);
           }
           var diff_fill = diff >= 2800 ? 100 : (diff < 0 ? 0 :(diff - Math.floor(diff/400)*400) / 4);
-          r = "<span class='show-diff' data-tooltip='Difficulty:" + Math.floor(diff) + sp + "'>"
-          if(p_dat["rated"]) r += makeDiffCircleHP(diff, 12);
+          r = "<span class='show-diff' data-tooltip='Difficulty:" + (diff == null ? "unavailable" : Math.floor(diff)) + sp + "'>"
+          /*if(p_dat["rated"])*/ r += makeDiffCircleHP(diff, 12, c_name, i-1);
           r += "<a target='_blank' class = '" + p_class + "-diff' href='https://onlinemathcontest.com/contests/" + c_name + "/tasks/" + c_name + "_" + alpha + "'>" + c_name + "-" + alpha + "</a></span>";
+        }else{
+          r = "";
         }
         problemsHTML[c_name][i] = r;
       }
@@ -74,21 +105,26 @@ $(function(){
   }
 
 
-  var show = function(){
+  var show = function(){ // show problems table
     var tb = document.getElementById("problems-body");
     tb.innerHTML = "";
     for(var ci=0; ci<Number(contests[0]); ci++){
       var c_name = contests[ci+1];
       var h = "";
       for(var i=0; i<7; i++){
-        h += "<td>" + problemsHTML[c_name][i] + "</td>";
+        h += "<td" + ((i < JSON.parse(c_list[ci]).length+1) && localStorage.CAstatus[c_name][i-1] ? " style='background: rgb(195, 230, 203)'" : "") +">" + problemsHTML[c_name][i] + "</td>";
       }
       tb.innerHTML += "<tr>" + h + "</tr>";
     }
   }
 
+  updateCAstatus = function(cont, quest){
+    localStorage.CAstatus[cont][quest] = !localStorage.CAstatus[cont][quest];
+    saveStorage(localStorage);
+    show();
+  }
 
-  var getRating = function(){
+  var getRating = function(){ //get solvers rating
     xmlhttp.open("GET", "rating.txt", false);
     xmlhttp.send(null);
     var get_t = xmlhttp.responseText.split("\n");
@@ -104,22 +140,28 @@ $(function(){
     var ratingHTML = document.getElementById("rating");
     if(value in rating_list){
       rating = rating_list[value];
-      ratingHTML.innerHTML = "Your rating: " + makeDiffCircleHP(rating, 12) + "<span class='" + diffColor(rating) + "-diff'>" + rating + "</span>";
+      ratingHTML.innerHTML = "Your rating: " + makeDiffCircleHP(rating, 12, "", "") + "<span class='" + diffColor(rating) + "-diff'>" + rating + "</span>";
     }else{
       rating = null;
       ratingHTML.innerHTML = "";
     }
     makePH();
     show();
+    if(localStorage){
+      localStorage.userid = document.getElementById("userid").value;
+      saveStorage(localStorage);
+    }
   }
   window.onkeydown = function(e){
     if(e.key == "Enter") document.getElementById("userid_ok").onclick();
   }
 
+  CAstatusNormalize();
   makePH();
   show();
   getRating();
-  if(document.getElementById("userid").value != ""){
+  if(localStorage){
+    document.getElementById("userid").value = localStorage.userid;
     document.getElementById("userid_ok").onclick();
   }
 })

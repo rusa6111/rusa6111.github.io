@@ -3,6 +3,7 @@ body{
   margin: 0%;
 }
 header{
+  z-index: 9999;
   display: flex;
   position: fixed;
   background-color: #eee;
@@ -146,7 +147,7 @@ h1{
   color: #F00;
 }
 .none-diff{
-  color: #000;
+  color: #147;
 }
 .OMC-contest{
   color: #08A;
