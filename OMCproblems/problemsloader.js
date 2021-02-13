@@ -19,11 +19,17 @@ $(function(){
   xmlhttp.send(null);
   var problemsHTML;
   var contests = xmlhttp.responseText.split("\n");
+  var contests_to_id = {};
+  for(var i=0; i<Number(contests[0]); i++){
+    contests_to_id[contests[i+1]] = i+1;
+  }
   xmlhttp.open("GET", "infomations/" + contestGroup + ".txt", false);
   xmlhttp.send(null);
   var c_list = xmlhttp.responseText.split("\n");
   var rating = null;
   var rating_list = {};
+  var joining_count = null;
+  var joining_count_list = {};
   var sigmoid = function(a, d, r){
     return 1/(1 + Math.exp(-a * (r - d)));
   }
@@ -37,6 +43,9 @@ $(function(){
           localStorage.CAstatus[contests[i+1]][j] = false;
         }
       }
+      var f = true;
+      for(var j=0; j<JSON.parse(c_list[i]).length; j++) f = f && localStorage.CAstatus[contests[i+1]][j];
+      localStorage.CAstatus[contests[i+1]][-1] = f;
     }
     saveStorage(localStorage);
   }
@@ -93,7 +102,7 @@ $(function(){
             p_class = diffColor(diff);
           }
           var diff_fill = diff >= 2800 ? 100 : (diff < 0 ? 0 :(diff - Math.floor(diff/400)*400) / 4);
-          r = "<span class='show-diff' data-tooltip='Difficulty:" + (diff == null ? "unavailable" : Math.floor(diff)) + sp + "'>"
+          r = "<span class='show-diff' data-tooltip='Difficulty:" + (diff == null ? "unavailable" : (diff < 0 ? "<0" : Math.floor(diff))) + sp + "'>"
           /*if(p_dat["rated"])*/ r += makeDiffCircleHP(diff, 12, c_name, i-1);
           r += "<a target='_blank' class = '" + p_class + "-diff' href='https://onlinemathcontest.com/contests/" + c_name + "/tasks/" + c_name + "_" + alpha + "'>" + c_name + "-" + alpha + "</a></span>";
         }else{
@@ -112,7 +121,7 @@ $(function(){
       var c_name = contests[ci+1];
       var h = "";
       for(var i=0; i<7; i++){
-        h += "<td" + ((i < JSON.parse(c_list[ci]).length+1) && localStorage.CAstatus[c_name][i-1] ? " style='background: rgb(195, 230, 203)'" : "") +">" + problemsHTML[c_name][i] + "</td>";
+        h += "<td" + ((i < JSON.parse(c_list[ci]).length+1) && localStorage.CAstatus[c_name][i-1] ? " CA='True'" : " CA='False'") +" id='probs_" + c_name + "_" + i + "'>" + problemsHTML[c_name][i] + "</td>";
       }
       tb.innerHTML += "<tr>" + h + "</tr>";
     }
@@ -120,8 +129,12 @@ $(function(){
 
   updateCAstatus = function(cont, quest){
     localStorage.CAstatus[cont][quest] = !localStorage.CAstatus[cont][quest];
+    var f = true;
+    for(var i=0; i<JSON.parse(c_list[contests_to_id[cont]]).length; i++) f = f && localStorage.CAstatus[cont][i];
+    localStorage.CAstatus[cont][-1] = f;
     saveStorage(localStorage);
-    show();
+    document.getElementById("probs_" + cont + "_" + (Number(quest)+1)).setAttribute("ca", localStorage.CAstatus[cont][quest] ? 'True' : 'False');
+    document.getElementById("probs_" + cont + "_0").setAttribute("ca", localStorage.CAstatus[cont][-1] ? 'True' : 'False');
   }
 
   var getRating = function(){ //get solvers rating
@@ -131,6 +144,7 @@ $(function(){
     for(var i=0; get_t[i] != ""; i++){
       var p = get_t[i].split(" ");
       rating_list[p[0]] = Number(p[1]);
+      joining_count_list[p[0]] = Number(p[2]);
     }
   }
 
@@ -140,6 +154,7 @@ $(function(){
     var ratingHTML = document.getElementById("rating");
     if(value in rating_list){
       rating = rating_list[value];
+      joining_count = joining_count_list[value];
       ratingHTML.innerHTML = "Your rating: " + makeDiffCircleHP(rating, 12, "", "") + "<span class='" + diffColor(rating) + "-diff'>" + rating + "</span>";
     }else{
       rating = null;

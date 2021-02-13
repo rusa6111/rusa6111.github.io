@@ -1,47 +1,52 @@
 body{
-  font-family: sans-serif;
+  font-family: "Roboto Condensed", sans-serif;
   margin: 0%;
 }
 header{
   z-index: 9999;
   display: flex;
   position: fixed;
-  background-color: #eee;
+  background-color: #222;
   justify-content: space-between;
   padding: 10px;
+  height: 30px;
   width: 100%;
 }
 .logo{
   display: inline-block;
   font-size: 20px;
   font-weight: 500;
-  margin: 10px 15px;
+  letter-spacing: 2px;
+  margin: auto 5%;
 }
 .logo a{
-  color: black;
+  color: white;
   text-decoration: none;
 }
 .head-links{
   display: inline-block;
-  margin: 10px 30px;
+  margin: auto 5%;
 }
 .head-links li{
   display: inline-block;
 }
 .head-link a{
   color: gray;
-  font-size: 16px;
-  margin: 10px 5px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  margin: 10px 10px;
   text-decoration: none;
+  transition: color 0.2s;
 }
 .head-link a:hover{
-  transition: all 0.3s ease 0s;
-  color: black;
+  color: white;
 }
 .now-page a{
-  color: black;
+  color: white;
+  font-size: 12px;
+  letter-spacing: 1px;
   text-decoration: none;
-  margin: 10px 5px;
+  margin: 10px 10px;
 }
 
 .main_body{
@@ -107,8 +112,16 @@ h1{
   font-size: 18px;
   border: solid 1px lightgray;
   padding: 12px;
+  transition: background-color 0.1s;
 }
 
+.problems td[CA="True"]{
+  background-color: rgb(195, 230, 203);
+}
+
+.problems td[CA="False"]{
+  background-color: #fff;
+}
 .problems a{
   text-decoration: none;
 }
